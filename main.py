@@ -2,21 +2,15 @@ import discord
 import os
 import requests
 import json
-import random
-from replit import db
 
 client = discord.Client()
+commands = ["list", "mom", "dad", "cat", "inspire", "epeen"]
 
-sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
-
-starter_encouragements = [
-  "Cheer up!",
-  "Hang in there.",
-  "You are a great person / bot!"
-]
-
-if "responding" not in db.keys():
-  db["responding"] = True
+def get_cat():
+  response = requests.get("https://api.thecatapi.com/v1/images/search")
+  json_data = json.loads(response.text)
+  cat = json_data[0]["url"]
+  return(cat)
 
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
@@ -36,20 +30,6 @@ def get_dadjoke():
   joke = json_data["attachments"][0]["fallback"]
   return(joke)
 
-def update_encouragements(encouraging_message):
-  if "encouragements" in db.keys():
-    encouragements = db["encouragements"]
-    encouragements.append(encouraging_message)
-    db["encouragements"] = encouragements
-  else:
-    db["encouragements"] = [encouraging_message]
-
-def delete_encouragment(index):
-  encouragements = db["encouragements"]
-  if len(encouragements) > index:
-    del encouragements[index]
-  db["encouragements"] = encouragements
-
 @client.event
 async def on_ready():
   print("We have logged in as {0.user}".format(client))
@@ -61,59 +41,27 @@ async def on_message(message):
 
   msg = message.content
 
-  if msg.startswith("$inspire"):
+  if "!inspire" in msg:
     quote = get_quote()
     await message.channel.send(quote)
 
-  if msg.startswith("your mom"):
+  if "!cat" in msg:
+    cat = get_cat()
+    await message.channel.send(cat)
+
+  if "!mom" in msg:
     momjoke = get_momjoke()
     await message.channel.send(momjoke)
 
-  if msg.startswith("your dad"):
+  if "!dad" in msg:
     dadjoke = get_dadjoke()
     await message.channel.send(dadjoke)
 
-  if db["responding"]:
-    options = starter_encouragements
-    if "encouragements" in db.keys():
-      options.extend(db["encouragements"])
+  if "!list" in msg:
+    await message.channel.send("I don't know much... but I know I love you.  And that may be all I need to know.  Also: " + ' '.join(commands))
 
-    if any(word in msg for word in sad_words):
-      await message.channel.send(random.choice(options))
-
-  if msg.startswith("$new"):
-    encouraging_message = msg.split("$new ",1)[1]
-    update_encouragements(encouraging_message)
-    await message.channel.send("New encouraging message added.")
-
-  if msg.startswith("$del"):
-    encouragements = []
-    if "encouragements" in db.keys():
-      index = int(msg.split("$del",1)[1])
-      delete_encouragment(index)
-      encouragements = db["encouragements"]
-    await message.channel.send(encouragements)
-
-  if msg.startswith("$list"):
-    encouragements = []
-    if "encouragements" in db.keys():
-      encouragements = db["encouragements"]
-    await message.channel.send(encouragements)
-    
-  if msg.startswith("$responding"):
-    value = msg.split("$responding ",1)[1]
-
-    if value.lower() == "true":
-      db["responding"] = True
-      await message.channel.send("Responding is on.")
-    else:
-      db["responding"] = False
-      await message.channel.send("Responding is off.")
-
-  if msg.startswith("$penis"):
+  if "!epeen" in msg:
     await message.channel.send("╰⋃╯")
 
-  if msg.startswith("Dumbot"):
-    await message.channel.send(msg)
 
 client.run(os.environ['TOKEN'])
