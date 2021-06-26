@@ -12,6 +12,10 @@ def get_cat():
   cat = json_data[0]["url"]
   return(cat)
 
+def get_pitch():
+  response = requests.get("https://itsthisforthat.com/api.php?text")
+  return(response.text)
+
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(response.text)
@@ -56,6 +60,10 @@ async def on_message(message):
   if "!dad" in msg:
     dadjoke = get_dadjoke()
     await message.channel.send(dadjoke)
+
+  if "!pitch" in msg:
+    pitch = get_pitch()
+    await message.channel.send(pitch)
 
   if "!list" in msg:
     await message.channel.send("I don't know much... but I know I love you.  And that may be all I need to know.  Also: " + ' '.join(commands))
