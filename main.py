@@ -1,75 +1,43 @@
-import discord
 import os
 import requests
 import json
+from discord.ext import commands
 
-client = discord.Client()
-commands = ["list", "mom", "dad", "cat", "inspire", "epeen"]
+bot = commands.Bot(command_prefix='!')
 
-def get_cat():
+@bot.command(name='cat', help='Responds with a random cat picture')
+async def cat(ctx):
   response = requests.get("https://api.thecatapi.com/v1/images/search")
   json_data = json.loads(response.text)
-  cat = json_data[0]["url"]
-  return(cat)
+  catURL = json_data[0]["url"]
+  await ctx.send(catURL)
 
-def get_pitch():
+commands = ["list", "mom", "dad", "cat", "inspire", "epeen"]
+
+@bot.command(name='pitch', help='Responds with a random sales pitch business idea')
+async def get_pitch(ctx):
   response = requests.get("https://itsthisforthat.com/api.php?text")
-  return(response.text)
+  await ctx.send(response.text)
 
-def get_quote():
+@bot.command(name='zen', help='Responds with a random zen quote')
+async def get_quote(ctx):
   response = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(response.text)
   quote = json_data[0]["q"] + " -" + json_data[0]["a"]
-  return(quote)
+  await ctx.send(quote)
 
-def get_momjoke():
+@bot.command(name='mom', help='Responds with a random Yo Momma! joke')
+async def get_momjoke(ctx):
   response = requests.get("https://api.yomomma.info/")
   json_data = json.loads(response.text)
   joke = json_data["joke"]
-  return(joke)
+  await ctx.send(joke)
 
-def get_dadjoke():
+@bot.command(name='dad', help='Responds with a random dad joke')
+async def get_dadjoke(ctx):
   response = requests.get("https://icanhazdadjoke.com/slack")
   json_data = json.loads(response.text)
   joke = json_data["attachments"][0]["fallback"]
-  return(joke)
+  await ctx.send(joke)
 
-@client.event
-async def on_ready():
-  print("We have logged in as {0.user}".format(client))
-
-@client.event
-async def on_message(message):
-  if message.author == client.user:
-    return
-
-  msg = message.content
-
-  if "!inspire" in msg:
-    quote = get_quote()
-    await message.channel.send(quote)
-
-  if "!cat" in msg:
-    cat = get_cat()
-    await message.channel.send(cat)
-
-  if "!mom" in msg:
-    momjoke = get_momjoke()
-    await message.channel.send(momjoke)
-
-  if "!dad" in msg:
-    dadjoke = get_dadjoke()
-    await message.channel.send(dadjoke)
-
-  if "!pitch" in msg:
-    pitch = get_pitch()
-    await message.channel.send(pitch)
-
-  if "!list" in msg:
-    await message.channel.send("I don't know much... but I know I love you.  And that may be all I need to know.  Also: " + ' '.join(commands))
-
-  if "!epeen" in msg:
-    await message.channel.send("╰⋃╯")
-
-
-client.run(os.environ['TOKEN'])
+bot.run(os.environ['TOKEN'])
