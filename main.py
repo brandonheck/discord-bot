@@ -12,8 +12,6 @@ async def cat(ctx):
   catURL = json_data[0]["url"]
   await ctx.send(catURL)
 
-commands = ["list", "mom", "dad", "cat", "inspire", "epeen"]
-
 @bot.command(name='pitch', help='Responds with a random sales pitch business idea')
 async def get_pitch(ctx):
   response = requests.get("https://itsthisforthat.com/api.php?text")
