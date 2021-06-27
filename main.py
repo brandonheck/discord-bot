@@ -1,9 +1,14 @@
 import os
 import requests
 import json
+import urllib
+from xml.dom.minidom import parseString
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix='!')
+yelp_token = os.environ['YELP_TOKEN']
+pbotid = os.environ['PBOTID']
+pcustid = os.environ['PCUSTID']
 
 @bot.command(name='cat', help='Responds with a random cat picture')
 async def cat(ctx):
@@ -37,5 +42,12 @@ async def get_dadjoke(ctx):
   json_data = json.loads(response.text)
   joke = json_data["attachments"][0]["fallback"]
   await ctx.send(joke)
+
+@bot.command(name='ama', help='Ask me anything')
+async def get_test(ctx, *, args):
+  response = requests.get("https://www.pandorabots.com/pandora/talk-xml?botid=" + pbotid + "&custid=" + pcustid + "&input=" + urllib.parse.quote(args))
+  dom3 = parseString(response.text)
+  name = dom3.getElementsByTagName('that')
+  await ctx.send(name[0].firstChild.nodeValue)
 
 bot.run(os.environ['TOKEN'])
