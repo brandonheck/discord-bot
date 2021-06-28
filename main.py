@@ -50,4 +50,13 @@ async def get_test(ctx, *, args):
   name = dom3.getElementsByTagName('that')
   await ctx.send(name[0].firstChild.nodeValue)
 
+@bot.command(name='yelp', help='Search yelp for businesses matching your search')
+async def get_yelp(ctx, *, args):
+  response = requests.get("https://api.yelp.com/v3/businesses/search?location=64081&limit=10&term=" + urllib.parse.quote(args), headers={"Authorization": "Bearer " + yelp_token})
+  json_data = json.loads(response.text)
+  results = "Here are some suggestions:"
+  for business in json_data["businesses"]:
+    results += '\n' + business['name'] + " " + str(business['rating']) + " stars "
+  await ctx.send(results)
+
 bot.run(os.environ['TOKEN'])
