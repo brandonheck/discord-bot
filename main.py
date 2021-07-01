@@ -76,8 +76,10 @@ async def get_yelp(ctx, *, args):
     json_data = json.loads(response.text)
     results = "Here are some suggestions:"
     for business in json_data["businesses"]:
-        results += '\n' + business['name'] + " " + str(
-            business['rating']) + " stars. web: " + shorty.tinyurl.short(
+        a, b = divmod(business['rating'], 1.0)
+        rating = int(a) * '★' + ('☆' if b >= 0.5 else '')
+        results += '\n' + business[
+            'name'] + " (" + rating + ") 🔗: " + shorty.tinyurl.short(
                 business['url'])
     await ctx.send(results)
 
@@ -190,8 +192,8 @@ async def howsmartis(ctx, arg):
 
 
 @bot.command(name='ping', help='Ping the bot to text name', hidden=True)
-async def ping(ctx):
-    await ctx.send('Pong ' + format(ctx.author.display_name))
+async def ping(ctx, arg):
+    await ctx.send('Pong ' + format(ctx.author.display_name) + arg)
 
 
 @bot.command(name='lookup', help='Display info on a member')
@@ -238,6 +240,15 @@ async def kanye(ctx):
         "https://freepngimg.com/download/kanye_west/11-2-kanye-west-png-pic.png"
     )
     await ctx.send(embed=embed)
+
+@bot.command(name='chuck', help='Get a verified fact about Chuck Norris')
+async def chuck(ctx):
+    response = requests.get("http://api.icndb.com/jokes/random")
+    json_data = json.loads(response.text)
+    if json_data['type'] == 'success' :
+       await ctx.send(json_data['value']['joke'])
+    else :
+       await ctx.send('Oh no, something Chucked up!')
 
 
 bot.run(os.environ['TOKEN'])
